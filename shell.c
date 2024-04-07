@@ -1,4 +1,5 @@
 #include "shell.h"
+#define MAX_LINE 80 /* The maximum length command */
 
 int main(int argc, char **argv) {
   if (argc == 2 && equal(argv[1], "--interactive")) {
@@ -12,12 +13,17 @@ int main(int argc, char **argv) {
 int interactiveShell() {
   bool should_run = true;
   char *line = calloc(1, MAXLINE);
+  char *args[MAX_LINE/2 + 1]; /* command line arguments */
   while (should_run) {
     printf(PROMPT);
     fflush(stdout);
     int n = fetchline(&line);
     printf("read: %s (length = %d)\n", line, n);
     // ^D results in n == -1
+    tokenize(&line, &args);
+
+    parse_args();
+
     if (n == -1 || equal(line, "exit")) {
       should_run = false;
       continue;
@@ -59,4 +65,29 @@ int fetchline(char **line) {
     (*line)[n - 1] = '\0';
   }
   return n;
+}
+
+void tokenize(char **line, char **args) {
+  char *pch;
+
+  pch = strtok(line, " ");
+  int num = 0;
+  while (pch != NULL) {
+    printf("Token %d: %s\n", num, pch);
+    args[num] = pch;
+    ++num;
+    pch = strtok(NULL, " ");
+  }
+}
+
+void parse_args(char **args) {
+  char cmd[] = "";
+  for (int i = 0; i < len(args); ++i) {
+    // might need to start at index 1
+    if (args[i] !=  '|' && args[i] !=  ';' && args[i] !=  '&' && i == len(args) - 1) {
+      	strcat(cmd, args[i]);
+    } else {
+      execvp(arg);
+    }
+  }
 }
